@@ -4,6 +4,7 @@ import (
 	db "Frank2006x/Vmate/db/sqlc"
 	"Frank2006x/Vmate/internals/model"
 	"context"
+
 	"github.com/jackc/pgx/v5/pgtype"
 )
 

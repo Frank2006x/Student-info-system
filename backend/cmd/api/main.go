@@ -3,19 +3,19 @@ package main
 import (
 	"context"
 	"log"
-	"os"
 
 	db "Frank2006x/Vmate/db/sqlc"
+	"Frank2006x/Vmate/internals/config"
 	"Frank2006x/Vmate/internals/router"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"Frank2006x/Vmate/internals/store"
 )
 
 func main() {
-	databaseURL := os.Getenv("DATABASE_URL")
-	if databaseURL == "" {
-		databaseURL = "postgres://app:local_dev_password@localhost:5432/students_db?sslmode=disable"
+	settings, err := config.Load()
+	if err != nil {
+		log.Fatal(err)
 	}
-	pool, err := pgxpool.New(context.Background(), databaseURL)
+	pool, err := store.Connect(context.Background(), settings.DatabaseURL)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,9 +1,10 @@
 package handler
 
 import (
-	"Frank2006x/Vmate/db/sqlc"
+	db "Frank2006x/Vmate/db/sqlc"
 	"Frank2006x/Vmate/internals/model"
 	"Frank2006x/Vmate/internals/service"
+
 	"github.com/gofiber/fiber/v3"
 )
 

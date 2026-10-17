@@ -1,0 +1,210 @@
+{
+  "info": {
+    "name": "Student Information System API",
+    "description": "CRUD tests for the Student Information System backend. Run requests in order so generated IDs are reused by dependent resources.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "departmentId", "value": "" },
+    { "key": "studentId", "value": "" },
+    { "key": "facultyId", "value": "" },
+    { "key": "courseId", "value": "" },
+    { "key": "runId", "value": "{{$timestamp}}" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/health"
+      },
+      "event": [{
+        "listen": "test",
+        "script": { "type": "text/javascript", "exec": [
+          "pm.test('health returns 200', function () { pm.response.to.have.status(200); });",
+          "pm.test('health is ok', function () { pm.expect(pm.response.json().status).to.eql('ok'); });"
+        ]}
+      }]
+    },
+    {
+      "name": "Departments",
+      "item": [
+        {
+          "name": "List departments",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/departments" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('list departments returns 200', function () { pm.response.to.have.status(200); });"] } }]
+        },
+        {
+          "name": "Create department",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"department_code\": \"CS-{{$timestamp}}\",\n  \"department_name\": \"Postman Department {{$timestamp}}\"\n}" },
+            "url": "{{baseUrl}}/api/v1/departments"
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.response.to.have.status(201);",
+            "pm.collectionVariables.set('departmentId', pm.response.json().id);",
+            "pm.test('department id was saved', function () { pm.expect(pm.collectionVariables.get('departmentId')).to.exist; });"
+          ] } }]
+        },
+        {
+          "name": "Get department",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/departments/{{departmentId}}" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('get department returns 200', function () { pm.response.to.have.status(200); });"] } }]
+        },
+        {
+          "name": "Update department",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"department_code\": \"UP-{{$timestamp}}\",\n  \"department_name\": \"Updated Postman Department {{$timestamp}}\"\n}" },
+            "url": "{{baseUrl}}/api/v1/departments/{{departmentId}}"
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('update department returns 200', function () { pm.response.to.have.status(200); });"] } }]
+        }
+      ]
+    },
+    {
+      "name": "Students",
+      "item": [
+        {
+          "name": "List students",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/students" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('list students returns 200', function () { pm.response.to.have.status(200); });"] } }]
+        },
+        {
+          "name": "Create student",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"student_code\": \"ST-{{$timestamp}}\",\n  \"first_name\": \"Postman\",\n  \"last_name\": \"Student\",\n  \"email\": \"student-{{$timestamp}}@example.com\",\n  \"department_id\": {{departmentId}},\n  \"enrollment_date\": \"2026-10-17\",\n  \"status\": \"active\"\n}" },
+            "url": "{{baseUrl}}/api/v1/students"
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.response.to.have.status(201);",
+            "pm.collectionVariables.set('studentId', pm.response.json().id);"
+          ] } }]
+        },
+        {
+          "name": "Get student",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/students/{{studentId}}" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('get student returns 200', function () { pm.response.to.have.status(200); });"] } }]
+        },
+        {
+          "name": "Update student",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"student_code\": \"UST-{{$timestamp}}\",\n  \"first_name\": \"Updated\",\n  \"last_name\": \"Student\",\n  \"email\": \"updated-student-{{$timestamp}}@example.com\",\n  \"department_id\": {{departmentId}},\n  \"enrollment_date\": \"2026-10-17\",\n  \"status\": \"active\"\n}" },
+            "url": "{{baseUrl}}/api/v1/students/{{studentId}}"
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('update student returns 200', function () { pm.response.to.have.status(200); });"] } }]
+        }
+      ]
+    },
+    {
+      "name": "Faculty",
+      "item": [
+        {
+          "name": "List faculty",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/faculty" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('list faculty returns 200', function () { pm.response.to.have.status(200); });"] } }]
+        },
+        {
+          "name": "Create faculty",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"faculty_code\": \"FC-{{$timestamp}}\",\n  \"first_name\": \"Postman\",\n  \"last_name\": \"Faculty\",\n  \"email\": \"faculty-{{$timestamp}}@example.com\",\n  \"department_id\": {{departmentId}},\n  \"designation\": \"Professor\",\n  \"specialization\": \"Testing\",\n  \"hire_date\": \"2026-10-17\",\n  \"status\": \"active\"\n}" },
+            "url": "{{baseUrl}}/api/v1/faculty"
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.response.to.have.status(201);",
+            "pm.collectionVariables.set('facultyId', pm.response.json().id);"
+          ] } }]
+        },
+        {
+          "name": "Get faculty",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/faculty/{{facultyId}}" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('get faculty returns 200', function () { pm.response.to.have.status(200); });"] } }]
+        },
+        {
+          "name": "Update faculty",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"faculty_code\": \"UFC-{{$timestamp}}\",\n  \"first_name\": \"Updated\",\n  \"last_name\": \"Faculty\",\n  \"email\": \"updated-faculty-{{$timestamp}}@example.com\",\n  \"department_id\": {{departmentId}},\n  \"designation\": \"Senior Professor\",\n  \"specialization\": \"Testing\",\n  \"hire_date\": \"2026-10-17\",\n  \"status\": \"active\"\n}" },
+            "url": "{{baseUrl}}/api/v1/faculty/{{facultyId}}"
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('update faculty returns 200', function () { pm.response.to.have.status(200); });"] } }]
+        }
+      ]
+    },
+    {
+      "name": "Courses",
+      "item": [
+        {
+          "name": "List courses",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/courses" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('list courses returns 200', function () { pm.response.to.have.status(200); });"] } }]
+        },
+        {
+          "name": "Create course",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"course_code\": \"CO-{{$timestamp}}\",\n  \"course_name\": \"Postman Course\",\n  \"department_id\": {{departmentId}},\n  \"faculty_id\": {{facultyId}},\n  \"credits\": 3,\n  \"semester\": 1,\n  \"academic_year\": \"2026-2027\"\n}" },
+            "url": "{{baseUrl}}/api/v1/courses"
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.response.to.have.status(201);",
+            "pm.collectionVariables.set('courseId', pm.response.json().id);"
+          ] } }]
+        },
+        {
+          "name": "Get course",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/v1/courses/{{courseId}}" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('get course returns 200', function () { pm.response.to.have.status(200); });"] } }]
+        },
+        {
+          "name": "Update course",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"course_code\": \"UCO-{{$timestamp}}\",\n  \"course_name\": \"Updated Postman Course\",\n  \"department_id\": {{departmentId}},\n  \"faculty_id\": {{facultyId}},\n  \"credits\": 4,\n  \"semester\": 2,\n  \"academic_year\": \"2026-2027\"\n}" },
+            "url": "{{baseUrl}}/api/v1/courses/{{courseId}}"
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('update course returns 200', function () { pm.response.to.have.status(200); });"] } }]
+        }
+      ]
+    },
+    {
+      "name": "Cleanup",
+      "item": [
+        {
+          "name": "Delete course",
+          "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/v1/courses/{{courseId}}" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('delete course returns 204', function () { pm.response.to.have.status(204); });"] } }]
+        },
+        {
+          "name": "Delete student",
+          "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/v1/students/{{studentId}}" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('delete student returns 204', function () { pm.response.to.have.status(204); });"] } }]
+        },
+        {
+          "name": "Delete faculty",
+          "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/v1/faculty/{{facultyId}}" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('delete faculty returns 204', function () { pm.response.to.have.status(204); });"] } }]
+        },
+        {
+          "name": "Delete department",
+          "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/v1/departments/{{departmentId}}" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('delete department returns 204', function () { pm.response.to.have.status(204); });"] } }]
+        }
+      ]
+    }
+  ]
+}

@@ -5,6 +5,7 @@ import (
 	"Frank2006x/Vmate/internals/service"
 	"errors"
 	"fmt"
+
 	"github.com/gofiber/fiber/v3"
 	"github.com/jackc/pgx/v5"
 )
