@@ -6,16 +6,18 @@ import (
 	"Frank2006x/Vmate/internals/service"
 
 	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/cors"
 	"github.com/gofiber/fiber/v3/middleware/logger"
 )
 
 func New(queries *db.Queries) *fiber.App {
 	app := fiber.New()
-	app.Use(logger.New(logger.Config{
-		Format:        "[${time}] ${status} - ${latency} ${method} ${path} ${error}\n",
-		TimeZone:      "UTC",
-		DisableColors: true,
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: []string{"http://localhost:3000"},
+		AllowHeaders: []string{"Origin", "Content-Type", "Accept"},
+		AllowMethods: []string{"GET", "POST", "PATCH", "DELETE", "OPTIONS"},
 	}))
+	app.Use(logger.New())
 	app.Get("/health", func(c fiber.Ctx) error { return c.JSON(fiber.Map{"status": "ok"}) })
 	api := app.Group("/api/v1")
 	RegisterDepartmentRoutes(api, handler.NewDepartmentHandler(service.NewDepartmentService(queries)))
