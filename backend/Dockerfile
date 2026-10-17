@@ -8,10 +8,13 @@ RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/student-api ./cmd/api
 
-FROM gcr.io/distroless/static-debian13:nonroot
+FROM alpine:3.22
 
-COPY --from=build /out/student-api /student-api
+RUN apk add --no-cache ca-certificates \
+	&& adduser -D -H -s /sbin/nologin studentapi
 
-USER nonroot:nonroot
+COPY --from=build --chown=studentapi:studentapi /out/student-api /student-api
+
+USER studentapi
 EXPOSE 8080
 ENTRYPOINT ["/student-api"]

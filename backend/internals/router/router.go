@@ -1,6 +1,9 @@
 package router
 
 import (
+	"os"
+	"strings"
+
 	db "Frank2006x/Vmate/db/sqlc"
 	"Frank2006x/Vmate/internals/handler"
 	"Frank2006x/Vmate/internals/service"
@@ -12,8 +15,12 @@ import (
 
 func New(queries *db.Queries) *fiber.App {
 	app := fiber.New()
+	allowedOrigins := os.Getenv("CORS_ALLOWED_ORIGINS")
+	if allowedOrigins == "" {
+		allowedOrigins = "*"
+	}
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: []string{"http://localhost:3000"},
+		AllowOrigins: strings.Split(allowedOrigins, ","),
 		AllowHeaders: []string{"Origin", "Content-Type", "Accept"},
 		AllowMethods: []string{"GET", "POST", "PATCH", "DELETE", "OPTIONS"},
 	}))

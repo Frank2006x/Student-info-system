@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"io/fs"
 
 	"github.com/spf13/viper"
 )
@@ -17,7 +18,7 @@ func Load() (Config, error) {
 	settings.AutomaticEnv()
 	if err := settings.ReadInConfig(); err != nil {
 		var notFound viper.ConfigFileNotFoundError
-		if !errors.As(err, &notFound) {
+		if !errors.As(err, &notFound) && !errors.Is(err, fs.ErrNotExist) {
 			return Config{}, err
 		}
 	}
