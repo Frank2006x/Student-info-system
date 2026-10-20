@@ -6,9 +6,14 @@ import (
 	"context"
 )
 
-type StudentService struct{ queries *db.Queries }
+type StudentService struct {
+	readQueries  *db.Queries
+	writeQueries *db.Queries
+}
 
-func NewStudentService(queries *db.Queries) *StudentService { return &StudentService{queries: queries} }
+func NewStudentService(readQueries, writeQueries *db.Queries) *StudentService {
+	return &StudentService{readQueries: readQueries, writeQueries: writeQueries}
+}
 func (s *StudentService) Create(ctx context.Context, input model.StudentRequest) (db.Student, error) {
 	if err := ValidateStudent(input); err != nil {
 		return db.Student{}, err
@@ -17,13 +22,13 @@ func (s *StudentService) Create(ctx context.Context, input model.StudentRequest)
 	if err != nil {
 		return db.Student{}, err
 	}
-	return s.queries.CreateStudent(ctx, db.CreateStudentParams{StudentCode: input.StudentCode, FirstName: input.FirstName, LastName: input.LastName, Email: input.Email, DepartmentID: input.DepartmentID, EnrollmentDate: date, Status: optionalString(input.Status)})
+	return s.writeQueries.CreateStudent(ctx, db.CreateStudentParams{StudentCode: input.StudentCode, FirstName: input.FirstName, LastName: input.LastName, Email: input.Email, DepartmentID: input.DepartmentID, EnrollmentDate: date, Status: optionalString(input.Status)})
 }
 func (s *StudentService) List(ctx context.Context, params db.ListStudentsParams) ([]db.Student, error) {
-	return s.queries.ListStudents(ctx, params)
+	return s.readQueries.ListStudents(ctx, params)
 }
 func (s *StudentService) Get(ctx context.Context, id int64) (db.Student, error) {
-	return s.queries.GetStudent(ctx, id)
+	return s.readQueries.GetStudent(ctx, id)
 }
 func (s *StudentService) Update(ctx context.Context, id int64, input model.StudentRequest) (db.Student, error) {
 	if err := ValidateStudent(input); err != nil {
@@ -37,8 +42,8 @@ func (s *StudentService) Update(ctx context.Context, id int64, input model.Stude
 	if status == "" {
 		status = "active"
 	}
-	return s.queries.UpdateStudent(ctx, db.UpdateStudentParams{ID: id, StudentCode: input.StudentCode, FirstName: input.FirstName, LastName: input.LastName, Email: input.Email, DepartmentID: input.DepartmentID, EnrollmentDate: date, Status: status})
+	return s.writeQueries.UpdateStudent(ctx, db.UpdateStudentParams{ID: id, StudentCode: input.StudentCode, FirstName: input.FirstName, LastName: input.LastName, Email: input.Email, DepartmentID: input.DepartmentID, EnrollmentDate: date, Status: status})
 }
 func (s *StudentService) Delete(ctx context.Context, id int64) error {
-	return s.queries.DeleteStudent(ctx, id)
+	return s.writeQueries.DeleteStudent(ctx, id)
 }

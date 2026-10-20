@@ -1,9 +1,10 @@
 ifneq (,$(wildcard .env))
 include .env
-export DATABASE_URL
 endif
 
-DATABASE_URL ?= postgres://app:local_dev_password@localhost:5432/students_db?sslmode=disable
+PRIMARY_DATABASE_URL ?= postgres://app:local_dev_password@localhost:5432/students_db?sslmode=disable
+REPLICA_DATABASE_URL ?= $(PRIMARY_DATABASE_URL)
+export PRIMARY_DATABASE_URL REPLICA_DATABASE_URL
 
 postgres:
 	docker run --name student-postgres \
@@ -19,10 +20,10 @@ dropdb:
 	docker exec -it student-postgres dropdb students_db
 
 migrateup:
-	migrate -path db/migration -database "$(DATABASE_URL)" -verbose up
+	migrate -path db/migration -database "$(PRIMARY_DATABASE_URL)" -verbose up
 
 migratedown:
-	migrate -path db/migration -database "$(DATABASE_URL)" -verbose down
+	migrate -path db/migration -database "$(PRIMARY_DATABASE_URL)" -verbose down
 
 migrate-up: migrateup
 

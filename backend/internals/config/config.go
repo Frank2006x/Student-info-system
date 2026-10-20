@@ -8,7 +8,8 @@ import (
 )
 
 type Config struct {
-	DatabaseURL string
+	PrimaryDatabaseURL string
+	ReplicaDatabaseURL string
 }
 
 func Load() (Config, error) {
@@ -23,9 +24,10 @@ func Load() (Config, error) {
 		}
 	}
 
-	databaseURL := settings.GetString("DATABASE_URL")
-	if databaseURL == "" {
-		return Config{}, errors.New("DATABASE_URL is required")
+	primaryDatabaseURL := settings.GetString("PRIMARY_DATABASE_URL")
+	replicaDatabaseURL := settings.GetString("REPLICA_DATABASE_URL")
+	if primaryDatabaseURL == "" || replicaDatabaseURL == "" {
+		return Config{}, errors.New("PRIMARY_DATABASE_URL and REPLICA_DATABASE_URL are required")
 	}
-	return Config{DatabaseURL: databaseURL}, nil
+	return Config{PrimaryDatabaseURL: primaryDatabaseURL, ReplicaDatabaseURL: replicaDatabaseURL}, nil
 }

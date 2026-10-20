@@ -13,7 +13,7 @@ import (
 	"github.com/gofiber/fiber/v3/middleware/logger"
 )
 
-func New(queries *db.Queries) *fiber.App {
+func New(readQueries, writeQueries *db.Queries) *fiber.App {
 	app := fiber.New()
 	allowedOrigins := os.Getenv("CORS_ALLOWED_ORIGINS")
 	if allowedOrigins == "" {
@@ -27,9 +27,9 @@ func New(queries *db.Queries) *fiber.App {
 	app.Use(logger.New())
 	app.Get("/health", func(c fiber.Ctx) error { return c.JSON(fiber.Map{"status": "ok"}) })
 	api := app.Group("/api/v1")
-	RegisterDepartmentRoutes(api, handler.NewDepartmentHandler(service.NewDepartmentService(queries)))
-	RegisterStudentRoutes(api, handler.NewStudentHandler(service.NewStudentService(queries)))
-	RegisterFacultyRoutes(api, handler.NewFacultyHandler(service.NewFacultyService(queries)))
-	RegisterCourseRoutes(api, handler.NewCourseHandler(service.NewCourseService(queries)))
+	RegisterDepartmentRoutes(api, handler.NewDepartmentHandler(service.NewDepartmentService(readQueries, writeQueries)))
+	RegisterStudentRoutes(api, handler.NewStudentHandler(service.NewStudentService(readQueries, writeQueries)))
+	RegisterFacultyRoutes(api, handler.NewFacultyHandler(service.NewFacultyService(readQueries, writeQueries)))
+	RegisterCourseRoutes(api, handler.NewCourseHandler(service.NewCourseService(readQueries, writeQueries)))
 	return app
 }

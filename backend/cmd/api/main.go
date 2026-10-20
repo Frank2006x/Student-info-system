@@ -15,13 +15,14 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	pool, err := store.Connect(context.Background(), settings.DatabaseURL)
+	pools, err := store.ConnectPools(context.Background(), settings.PrimaryDatabaseURL, settings.ReplicaDatabaseURL)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer pool.Close()
+	defer pools.Primary.Close()
+	defer pools.Replica.Close()
 
-	app := router.New(db.New(pool))
+	app := router.New(db.New(pools.Replica), db.New(pools.Primary))
 	log.Printf("student information API listening on %s", ":8080")
 	if err := app.Listen(":8080"); err != nil {
 		log.Fatal(err)

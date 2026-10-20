@@ -22,3 +22,22 @@ func Connect(ctx context.Context, databaseURL string) (*pgxpool.Pool, error) {
 	}
 	return pool, nil
 }
+
+type Pools struct {
+	Primary *pgxpool.Pool
+	Replica *pgxpool.Pool
+}
+
+func ConnectPools(ctx context.Context, primaryDatabaseURL, replicaDatabaseURL string) (Pools, error) {
+	primary, err := Connect(ctx, primaryDatabaseURL)
+	if err != nil {
+		return Pools{}, fmt.Errorf("connect primary database: %w", err)
+	}
+
+	replica, err := Connect(ctx, replicaDatabaseURL)
+	if err != nil {
+		primary.Close()
+		return Pools{}, fmt.Errorf("connect replica database: %w", err)
+	}
+	return Pools{Primary: primary, Replica: replica}, nil
+}

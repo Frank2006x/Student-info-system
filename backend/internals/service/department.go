@@ -7,29 +7,32 @@ import (
 	"Frank2006x/Vmate/internals/model"
 )
 
-type DepartmentService struct{ queries *db.Queries }
+type DepartmentService struct {
+	readQueries  *db.Queries
+	writeQueries *db.Queries
+}
 
-func NewDepartmentService(queries *db.Queries) *DepartmentService {
-	return &DepartmentService{queries: queries}
+func NewDepartmentService(readQueries, writeQueries *db.Queries) *DepartmentService {
+	return &DepartmentService{readQueries: readQueries, writeQueries: writeQueries}
 }
 func (s *DepartmentService) Create(ctx context.Context, input model.DepartmentRequest) (db.Department, error) {
 	if err := ValidateDepartment(input); err != nil {
 		return db.Department{}, err
 	}
-	return s.queries.CreateDepartment(ctx, db.CreateDepartmentParams{DepartmentCode: input.DepartmentCode, DepartmentName: input.DepartmentName})
+	return s.writeQueries.CreateDepartment(ctx, db.CreateDepartmentParams{DepartmentCode: input.DepartmentCode, DepartmentName: input.DepartmentName})
 }
 func (s *DepartmentService) List(ctx context.Context) ([]db.Department, error) {
-	return s.queries.ListDepartments(ctx)
+	return s.readQueries.ListDepartments(ctx)
 }
 func (s *DepartmentService) Get(ctx context.Context, id int64) (db.Department, error) {
-	return s.queries.GetDepartment(ctx, id)
+	return s.readQueries.GetDepartment(ctx, id)
 }
 func (s *DepartmentService) Update(ctx context.Context, id int64, input model.DepartmentRequest) (db.Department, error) {
 	if err := ValidateDepartment(input); err != nil {
 		return db.Department{}, err
 	}
-	return s.queries.UpdateDepartment(ctx, db.UpdateDepartmentParams{ID: id, DepartmentCode: input.DepartmentCode, DepartmentName: input.DepartmentName})
+	return s.writeQueries.UpdateDepartment(ctx, db.UpdateDepartmentParams{ID: id, DepartmentCode: input.DepartmentCode, DepartmentName: input.DepartmentName})
 }
 func (s *DepartmentService) Delete(ctx context.Context, id int64) error {
-	return s.queries.DeleteDepartment(ctx, id)
+	return s.writeQueries.DeleteDepartment(ctx, id)
 }
